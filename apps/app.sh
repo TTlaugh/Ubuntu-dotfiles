@@ -12,17 +12,15 @@ sudo apt install persepolis
 sudo apt install dconf-editor
 gsettings set org.gnome.settings-daemon.plugins.media-keys max-screencast-length 0
 sudo apt install htop
-sudo apt install tmux
 sudo apt install curl wget git
 sudo apt install vim
 sudo apt install gtkhash
 sudo apt install gparted
 sudo apt install chromium-browser
 sudo apt install timeshift
-sudo apt-get install ubuntu-restricted-extras
-sudo apt install fonts-firacode
-sudo apt install chrome-gnome-shell gnome-tweak-tool
-sudo apt-get install dconf-cli
+sudo apt install ubuntu-restricted-extras
+sudo apt install gnome-tweaks #chrome-gnome-shell gnome-shell-extensions gnome-shell-extension-manager
+sudo apt install dconf-cli
 git clone https://github.com/dracula/gnome-terminal
 cd gnome-terminal
 ./install.sh

@@ -1,0 +1,11 @@
+[/]
+background-color='rgb(26,27,38)'
+background-transparency-percent=8
+font='Mononoki Nerd Font 15'
+foreground-color='rgb(169,177,214)'
+palette=['rgb(65,72,104)', 'rgb(247,118,142)', 'rgb(115,218,202)', 'rgb(224,175,104)', 'rgb(122,162,247)', 'rgb(187,154,247)', 'rgb(125,207,255)', 'rgb(192,202,245)', 'rgb(65,72,104)', 'rgb(255,158,100)', 'rgb(180,249,248)', 'rgb(158,206,106)', 'rgb(125,207,255)', 'rgb(187,154,247)', 'rgb(51,199,222)', 'rgb(255,255,255)']
+use-system-font=false
+use-theme-colors=false
+use-theme-transparency=false
+use-transparent-background=true
+visible-name='MyProfile'

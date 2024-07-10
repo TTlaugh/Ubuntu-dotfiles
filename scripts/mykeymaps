@@ -1,0 +1,8 @@
+#!/bin/sh
+
+case "$@" in 
+    ### Remap: Caps -> Esc; L+R_Shift -> Caps
+    "on") setxkbmap -option caps:escape,shift:both_capslock;;
+    "off") setxkbmap -option;;
+    *) exit 1;;
+esac

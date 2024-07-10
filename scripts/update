@@ -1,0 +1,202 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GITHUB_TOOLS_DIR="$HOME/Github/tools"
+UPDATE_LOG_FILE="$HOME/.cache/update_script.log"
+
+do_you_want_to_rebuild() {
+    read -r -p "Do you want to rebuild $1? [Y/n] " yn
+    case "$yn" in
+        [Yy][Ee][Ss]|[Yy]|"") true ;;
+        *) false ;;
+    esac
+}
+
+update_apt() {
+    echo -e "\033[0;36m
+     █████╗ ██████╗ ████████╗
+    ██╔══██╗██╔══██╗╚══██╔══╝
+    ███████║██████╔╝   ██║
+    ██╔══██║██╔═══╝    ██║
+    ██║  ██║██║        ██║
+    ╚═╝  ╚═╝╚═╝        ╚═╝
+    \033[0m"
+    sudo apt update && sudo apt upgrade -y
+    echo
+}
+
+update_snap() {
+    echo -e "\033[0;36m
+    ███████╗███╗   ██╗ █████╗ ██████╗
+    ██╔════╝████╗  ██║██╔══██╗██╔══██╗
+    ███████╗██╔██╗ ██║███████║██████╔╝
+    ╚════██║██║╚██╗██║██╔══██║██╔═══╝
+    ███████║██║ ╚████║██║  ██║██║
+    ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝
+    \033[0m"
+    sudo snap refresh
+    echo
+}
+
+update_kitty() {
+    echo -e "\033[0;36m
+    ██╗  ██╗██╗████████╗████████╗██╗   ██╗
+    ██║ ██╔╝██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝
+    █████╔╝ ██║   ██║      ██║    ╚████╔╝
+    ██╔═██╗ ██║   ██║      ██║     ╚██╔╝
+    ██║  ██╗██║   ██║      ██║      ██║
+    ╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝      ╚═╝
+    \033[0m"
+    if do_you_want_to_rebuild "kitty terminal"; then
+        curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    fi
+}
+
+rebuild_autocpufreq() {
+    if ! do_you_want_to_rebuild "auto-cpufreq"; then return; fi
+    echo -e "\033[31mRebuilding auto-cpufreq ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/auto-cpufreq
+    printf "r\n" | sudo ./auto-cpufreq-installer
+    sudo systemctl daemon-reload
+    printf "i\n" | sudo ./auto-cpufreq-installer
+    sudo auto-cpufreq --install
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+rebuild_neovim() {
+    if ! do_you_want_to_rebuild "neovim"; then return; fi
+    echo -e "\033[31mRebuilding neovim ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/neovim
+    echo
+    echo -e "STABLE RELEASE:\n\t\`git checkout stable\`"
+    echo -e "Build:\n\t\`make CMAKE_BUILD_TYPE=Release\`"
+    echo
+    git checkout stable
+    make CMAKE_BUILD_TYPE=Release
+    echo
+    echo -e "Install:\n\t\`cd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb\`"
+    echo
+    cd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb
+    rm -rf .deps build
+    git checkout master
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+rebuild_vifm() {
+    if ! do_you_want_to_rebuild "vifm"; then return; fi
+    echo -e "\033[31mRebuilding vifm ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/vifm
+    ./scripts/fix-timestamps
+    ./configure --sysconfdir=/etc
+    make
+    sudo make install
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+rebuild_scrcpy() {
+    if ! do_you_want_to_rebuild "scrcpy"; then return; fi
+    echo -e "\033[31mRebuilding scrcpy ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/scrcpy
+    ./install_release.sh
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+rebuild_Orchistheme() {
+    if ! do_you_want_to_rebuild "Orchis-theme"; then return; fi
+    echo -e "\033[31mRebuilding Orchis-theme ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/Orchis-theme
+    # ./install.sh
+    ./install.sh --theme all --tweaks macos --dest "$HOME"/.local/share/themes
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+rebuild_Telaicon() {
+    if ! do_you_want_to_rebuild "Tela-icon-theme"; then return; fi
+    echo -e "\033[31mRebuilding Tela-icon-theme ......\033[0m"
+    sleep 1
+    cd "$GITHUB_TOOLS_DIR"/Tela-icon-theme
+    # ./install.sh
+    ./install.sh -a
+    echo
+    echo -e "\033[32mDone!\n======================================================================="
+}
+
+should_update() {
+    [[ ! -e "$UPDATE_LOG_FILE" ]] && date '+%Y%m%d' > "$UPDATE_LOG_FILE"
+
+    old=$(date -d "$(cat "$UPDATE_LOG_FILE")" +%s)
+    new=$(date +%s)
+    dd=$(( (new-old)/86400 )) # 86400 = 60*60*24
+
+    if [[ "$dd" -gt 20 ]]; then
+        date '+%Y%m%d' > "$UPDATE_LOG_FILE"
+        true
+    else
+        false
+    fi
+}
+
+update_github() {
+    echo -e "\033[0;36m
+     ██████╗ ██╗████████╗██╗  ██╗██╗   ██╗██████╗
+    ██╔════╝ ██║╚══██╔══╝██║  ██║██║   ██║██╔══██╗
+    ██║  ███╗██║   ██║   ███████║██║   ██║██████╔╝
+    ██║   ██║██║   ██║   ██╔══██║██║   ██║██╔══██╗
+    ╚██████╔╝██║   ██║   ██║  ██║╚██████╔╝██████╔╝
+     ╚═════╝ ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═════╝
+    \033[0m"
+    echo
+
+    mapfile -t repo_dirs < <(find "$GITHUB_TOOLS_DIR"/* -maxdepth 0)
+    count=0
+    for i in "${!repo_dirs[@]}"; do
+        cd "${repo_dirs[$i]}"
+        echo -e "\033[31mRunning \`git pull\` in ${repo_dirs[$i]} ......\033[0m"
+        repo_name="$(basename "${repo_dirs[$i]}")"
+        if [[ "$(git pull)" != "Already up to date." ]]; then
+            case "$repo_name" in
+                "auto-cpufreq") rebuild_autocpufreq ;;
+                "neovim") rebuild_neovim ;;
+                "vifm") rebuild_vifm ;;
+                "scrcpy") rebuild_scrcpy ;;
+                "Orchis-theme") rebuild_Orchistheme ;;
+                "Tela-icon-theme") rebuild_Telaicon ;;
+                *)  ;;
+            esac
+            repo_dirs["$i"]="\033[32m* $repo_name\033[0m"
+            count=$(( count + 1 ))
+        else
+            repo_dirs["$i"]="$repo_name"
+        fi
+    done
+    echo -e "\033[32m=======================================================================\033[0m"
+    echo -e "$count repositories updated!"
+    if [[ "$count" != "0" ]]; then
+        for repo in "${repo_dirs[@]}"; do
+            echo -e "\t$repo"
+        done
+    fi
+}
+
+main() {
+    sudo true
+    case "$*" in
+        "-a"|"--apt") update_apt ;;
+        "-s"|"--snap") update_snap ;;
+        "-g"|"--git") update_github ;;
+        "") update_apt
+            update_snap
+            update_kitty
+            if [[ -d "$GITHUB_TOOLS_DIR" && $(ls -A "$GITHUB_TOOLS_DIR") ]] && should_update; then
+                update_github
+            fi
+            ;;
+        *) exit;;
+    esac
+}
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

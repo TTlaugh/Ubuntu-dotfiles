@@ -1,0 +1,87 @@
+# vim:ft=conf
+################
+#   Packages   #
+################
+- Install packages from packages list
+
+- Snap:
+    - chromium
+    - node
+    - starship
+
+- BUILD FROM SOURCE:
+    Neovim: https://github.com/neovim/neovim
+    Kitty : https://sw.kovidgoyal.net/kitty/binary/
+    Vifm  : https://github.com/vifm/vifm
+            https://wiki.vifm.info/index.php/Obtaining_Vifm
+- Other:
+    VirtualBox: add respository and install manually (view in official web site)
+        host: ext pack
+        guest: VB guest additions
+
+################
+#    Config    #
+################
+bat:
+    mkdir -p ~/.local/bin && ln -s /usr/bin/batcat ~/.local/bin/bat
+
+zsh config:
+    fzf keybindings & completing
+    aliase for ubuntu
+
+Vifm:
+    image preview: see https://wiki.vifm.info/index.php/How_to_preview_images
+    Ueberzug: https://github.com/jstkdng/ueberzugpp
+
+gnome-terminal profile
+    export the profile:
+        dconf dump /org/gnome/terminal/legacy/profiles:/:1430663d-083b-4737-a7f5-8378cc8226d1/ > material-theme-profile.dconf
+    clear all profiles:
+        dconf reset -f /org/gnome/terminal/legacy/profiles:/
+    list all profiles:
+        dconf dump /org/gnome/terminal/legacy/profiles:/
+        dconf list /org/gnome/terminal/legacy/profiles:/
+    restore the profile:
+        dconf load /org/gnome/terminal/legacy/profiles:/:1430663d-083b-4737-a7f5-8378cc8226d1/ < material-theme-profile.dconf
+
+#####################
+#  Power management #
+#####################
+- Install nvidia driver (proprietary)
+    - sudo apt-get remove --purge '^nvidia-.*'
+    - sudo ubuntu-drivers devices
+    - sudo apt install nvidia-driver-525
+    NOTE: don't install "open" version
+- Turn off nvidia by Prime
+- Install auto-cpufreq
+
+#############
+#  scripts  #
+#############
+    cmkpr
+    compiler
+    myfetch
+    mykeymaps
+    nvims
+    update
+
+#########
+#  MSC  #
+#########
+Orchis-theme (dependencies: gtk2-engines-murrine sassc)
+tela-icons
+
+Use phone as mouse and keyboard:
+    https://remotemouse.net/ (use for archlinux with AUR)
+    remote-touchpad (snap):
+        sudo snap install remote-touchpad
+        sudo ufw allow 55555
+        remote-touchpad -bind :55555
+
+##########
+# Games #
+##########
+Minetest (multiplayer - LAN):
+    firewall: allow port 30000 (default port for Minetest server)
+ZeroTier:
+    firewall: allow port 9993 (default port)
